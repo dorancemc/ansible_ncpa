@@ -1,6 +1,7 @@
 ---
 
 extends: default
+
 ignore: |
   .ansible*/
 
@@ -12,5 +13,10 @@ rules:
     level: warning
     max-spaces-inside: 1
   comments: disable
+  comments-indentation: disable
   line-length: disable
-  truthy: disable
+  truthy:
+    allowed-values:
+      - 'true'
+      - 'false'
+    level: error

@@ -1,0 +1,59 @@
+---
+
+ncpa_config_path: /usr/local/ncpa/etc
+ncpa_log_path: /usr/local/ncpa/var/log
+ncpa_user: nagios
+ncpa_group: nagios
+
+ncpa_config: {}
+
+ncpa_config_default:
+  general:
+    all_partitions: 1
+    check_logging: 1
+    check_logging_time: 30
+    default_units: Gi
+    exclude_fs_types: aufs,autofs,binfmt_misc,cgroup,cifs,configfs,debugfs,devpts,devtmpfs,efivarfs,encryptfs,fuse,fusectl,hugetlbfs,mqueue,nfs,nfsd,overlayfs,proc,pstore,rpc_pipefs,securityfs,selinuxfs,smb,sysfs,tmpfs,tracefs,xenfs
+    gid: "{{ ncpa_group }}"
+    logbackups: 5
+    loglevel: info
+    logmaxmb: 5
+    pidfile: var/run/ncpa.pid
+    uid: "{{ ncpa_user }}"
+  listener:
+    admin_auth_only: 0
+    admin_gui_access: 1
+    admin_password: None
+    allow_config_edit: 0
+    certificate: adhoc
+    delay_start: 0
+    disable_gui: 0
+    ip: 0.0.0.0
+    logfile: var/log/ncpa_listener.log
+    max_connections: 200
+    port: 5693
+    ssl_version: TLSv1_2
+  api:
+    community_string: mytoken
+  passive:
+    delay_start: 0
+    handlers: None
+    logfile: var/log/ncpa_passive.log
+    passive_ssl_verification: 1
+    sleep: 300
+  nrdp:
+    connection_timeout: 10
+    hostname:
+    parent:
+    token:
+  kafkaproducer:
+    clientname: NCPA-Kafka
+    hostname: None
+    servers: localhost:9092
+    topic: ncpa
+  plugin directives:
+    .py: python3 $plugin_name $plugin_args
+    .sh: /bin/sh $plugin_name $plugin_args
+    follow_symlinks: 0
+    plugin_path: plugins/
+    plugin_timeout: 59

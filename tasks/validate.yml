@@ -1,0 +1,16 @@
+---
+
+- name: Assert the operating system family is supported
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['os_family'] in ['Debian', 'RedHat']
+    fail_msg: "NCPA role supports only the Debian and RedHat families, got {{ ansible_facts['os_family'] }}"
+
+- name: Assert the NCPA API token is set
+  ansible.builtin.assert:
+    that:
+      - __ncpa_config.api.community_string | default('') | length > 0
+      - __ncpa_config.api.community_string != 'mytoken'
+    fail_msg: Define ncpa_config.api.community_string with a vaulted token
+  no_log: true
+  diff: false

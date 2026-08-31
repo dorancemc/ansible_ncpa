@@ -1,0 +1,56 @@
+---
+
+- name: Install apt-transport-https package
+  become: true
+  ansible.builtin.apt:
+    name: apt-transport-https
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Create APT keyrings directory
+  become: true
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Download Nagios repository signing key
+  become: true
+  ansible.builtin.get_url:
+    url: https://repo.nagios.com/GPG-KEY-NAGIOS-V3
+    dest: /etc/apt/keyrings/GPG-KEY-NAGIOS-V3.asc
+    mode: '0644'
+
+- name: Remove legacy Nagios keyring and repository files
+  become: true
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/apt/keyrings/GPG-KEY-NAGIOS-V3.gpg
+    - /etc/apt/sources.list.d/nagios.list
+
+- name: Add Nagios repository
+  become: true
+  ansible.builtin.deb822_repository:
+    name: nagios
+    types: deb
+    uris: https://repo.nagios.com/deb/{{ ansible_facts['distribution_release'] }}
+    suites: /
+    signed_by: /etc/apt/keyrings/GPG-KEY-NAGIOS-V3.asc
+    state: present
+
+- name: Update APT package cache
+  become: true
+  ansible.builtin.apt:
+    update_cache: true
+  changed_when: false
+
+- name: Install NCPA package
+  become: true
+  ansible.builtin.apt:
+    name: ncpa
+    state: present
+    update_cache: true
+    cache_valid_time: 3600

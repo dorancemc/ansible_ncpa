@@ -1,7 +1,7 @@
 ---
 name: Validate Ansible Role
 
-on:
+"on":
   push:
   pull_request:
     branches: [ main ]
@@ -21,10 +21,13 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install yamllint ansible molecule molecule-docker
+          pip install yamllint ansible-core ansible-lint
 
       - name: Run yamllint
         run: yamllint -f colored .
+
+      - name: Run ansible-lint
+        run: ansible-lint
 
       - name: Setup test environment
         run: |

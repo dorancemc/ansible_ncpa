@@ -1,0 +1,29 @@
+---
+
+- name: Deploy NCPA configuration file
+  become: true
+  ansible.builtin.template:
+    src: ncpa.cfg.j2
+    dest: "{{ ncpa_config_path }}/ncpa.cfg"
+    owner: root
+    group: "{{ ncpa_group }}"
+    mode: '0640'
+  no_log: true
+  diff: false
+  notify: restart ncpa
+
+- name: Set NCPA log directory permissions
+  become: true
+  ansible.builtin.file:
+    path: "{{ ncpa_log_path }}"
+    state: directory
+    owner: root
+    group: "{{ ncpa_group }}"
+    mode: '0775'
+
+- name: Enable and start NCPA service
+  become: true
+  ansible.builtin.systemd_service:
+    name: ncpa.service
+    state: started
+    enabled: true

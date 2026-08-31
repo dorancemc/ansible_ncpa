@@ -1,0 +1,25 @@
+---
+
+- name: Import Nagios repository GPG key
+  become: true
+  ansible.builtin.rpm_key:
+    key: https://repo.nagios.com/GPG-KEY-NAGIOS-V3
+    state: present
+
+- name: Add Nagios repository
+  become: true
+  ansible.builtin.yum_repository:
+    name: nagios
+    description: Nagios Repository
+    baseurl: https://repo.nagios.com/nagios/{{ ansible_facts['distribution_major_version'] }}/
+    gpgkey: https://repo.nagios.com/GPG-KEY-NAGIOS-V3
+    gpgcheck: true
+    enabled: true
+    state: present
+
+- name: Install NCPA package
+  become: true
+  ansible.builtin.dnf:
+    name: ncpa
+    state: present
+    update_cache: true

@@ -1,5 +1,9 @@
 ---
 
 - hosts: all
+  vars:
+    ncpa_config:
+      api:
+        community_string: ci-test-token
   roles:
-    - { role: ncpa }
+    - { role: ncpa, tags: [ ncpa ] }

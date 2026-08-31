@@ -1,8 +1,0 @@
----
-
-ncpa_config_path: /usr/local/ncpa/etc
-ncpa_log_path: /usr/local/ncpa/var/log/
-
-ncpa_nagios:
-  user: nagios
-  group: nagios

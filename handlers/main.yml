@@ -9,11 +9,15 @@
     enabled: true
   listen: restart ncpa
 
-- name: Verify NCPA service is running
+- name: Verify NCPA API is responding
   ansible.builtin.uri:
-    url: https://localhost:{{ __ncpa_config.listener.port }}/api?token={{ __ncpa_config.api.community_string }}
+    url: https://localhost:{{ __ncpa_config.listener.port }}/api/?token={{ __ncpa_config.api.community_string }}
     validate_certs: false
     timeout: 30
-  listen: restart ncpa
-  retries: 3
+  register: __ncpa_api_check
+  until: __ncpa_api_check.status == 200
+  retries: 5
   delay: 5
+  no_log: true
+  diff: false
+  listen: restart ncpa

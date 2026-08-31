@@ -1,25 +1,30 @@
 ---
-
 galaxy_info:
-  author: dorancemc
-  description: Role to install and configure NCPA (Nagios Cross-Platform Agent)
+  author: Dorance Martinez
+  company: DMCi.co
+  description: Install and configure the Nagios Cross-Platform Agent (NCPA 3)
   role_name: ncpa
-  namespace: dorancemc
-  company: dorancemc
   license: Apache-2.0
-  min_ansible_version: '2.12'
+  min_ansible_version: '2.20'
   platforms:
-    - name: EL
-      versions:
-        - "9"
-        - "8"
-    - name: Ubuntu
-      versions:
-        - noble     # 24.04 LTS
-        - jammy     # 22.04 LTS
     - name: Debian
       versions:
-        - bookworm  # 12
-        - bullseye  # 11
+        - bookworm
+        - bullseye
+        - trixie
+    - name: EL
+      versions:
+        - "8"
+        - "9"
+        - "10"
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+  galaxy_tags:
+    - linux
+    - monitoring
+    - nagios
+    - ncpa
 
-  galaxy_tags: [nagios, ncpa, monitoring, linux]
+dependencies: []

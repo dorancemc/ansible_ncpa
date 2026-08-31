@@ -1,3 +1,4 @@
 .ansible/
 .python-version
 .DS_Store
+tests/roles/

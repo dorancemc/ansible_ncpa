@@ -1,31 +1,19 @@
 ---
 
-- name: Set OS dependent variables
-  ansible.builtin.include_vars: '{{ item }}'
-  with_first_found:
-    - '{{ ansible_facts.os_family }}.yaml'
+- name: Validate NCPA variables
+  ansible.builtin.import_tasks: validate.yml
+  tags: [ncpa, ncpa-install, ncpa-config]
 
-- name: Execute OS dependent tasks
-  ansible.builtin.include_tasks: '{{ item }}'
-  with_first_found:
-    - '{{ ansible_facts.os_family }}.yaml'
+- name: Install NCPA on Debian family
+  ansible.builtin.import_tasks: Debian.yml
+  when: ansible_facts['os_family'] == 'Debian'
+  tags: [ncpa, ncpa-install]
 
-- name: Configure NCPA from template
-  become: true
-  ansible.builtin.template:
-    src: ncpa.cfg
-    dest: "{{ ncpa_config_path }}/ncpa.cfg"
-    owner: "{{ ncpa_nagios.user }}"
-    group: "{{ ncpa_nagios.group }}"
-    mode: '0644'
-  notify: restart ncpa
-  tags: ncpa_config
+- name: Install NCPA on RedHat family
+  ansible.builtin.import_tasks: RedHat.yml
+  when: ansible_facts['os_family'] == 'RedHat'
+  tags: [ncpa, ncpa-install]
 
-- name: Set NCPA log directory permissions
-  become: true
-  ansible.builtin.file:
-    path: "{{ ncpa_log_path }}"
-    state: directory
-    owner: "{{ ncpa_nagios.user }}"
-    group: "{{ ncpa_nagios.group }}"
-    mode: '0770'
+- name: Configure NCPA
+  ansible.builtin.import_tasks: config.yml
+  tags: [ncpa, ncpa-config]

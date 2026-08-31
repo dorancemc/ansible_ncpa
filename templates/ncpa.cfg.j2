@@ -1,0 +1,7 @@
+{% for conf_section in __ncpa_config %}
+[{{ conf_section }}]
+{% for key, data in __ncpa_config[conf_section].items() %}
+{{ key }} = {{ data if data is not none else '' }}
+{% endfor %}
+
+{% endfor %}

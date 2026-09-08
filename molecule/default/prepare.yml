@@ -1,0 +1,16 @@
+---
+
+- name: Prepare
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Wait for systemd to finish booting
+      ansible.builtin.raw: systemctl is-system-running --wait
+      register: __ncpa_systemd_state
+      changed_when: false
+      failed_when: false
+      timeout: 180
+
+    - name: Report the systemd state
+      ansible.builtin.debug:
+        var: __ncpa_systemd_state.stdout_lines

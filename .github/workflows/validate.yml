@@ -23,17 +23,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install yamllint ansible-core ansible-lint
 
-      - name: Run yamllint
-        run: yamllint -f colored .
-
-      - name: Run ansible-lint
-        run: ansible-lint
-
       - name: Setup test environment
         run: |
           mkdir -p tests/roles
           ln -s $PWD tests/roles/ncpa
           chmod 755 tests
+
+      - name: Run yamllint
+        run: yamllint -f colored .
+
+      - name: Run ansible-lint
+        run: ansible-lint
 
       - name: Run ansible-playbook syntax check
         run: |

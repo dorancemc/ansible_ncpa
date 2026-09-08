@@ -24,18 +24,25 @@ ncpa_config_default:
     admin_auth_only: 0
     admin_gui_access: 1
     admin_password: None
+    # allowed_hosts: 127.0.0.1,10.0.0.0/24,nagios.example.com
+    # allowed_sources: monitoring.example.com
     allow_config_edit: 0
     certificate: adhoc
     delay_start: 0
     disable_gui: 0
+    gui_session_timeout: 3600
     ip: 0.0.0.0
     logfile: var/log/ncpa_listener.log
     max_connections: 200
     port: 5693
+    # ssl_ciphers: AES256-GCM-SHA384:AES256-SHA256
+    # ssl_max_version: TLSv1_3
     ssl_version: TLSv1_2
   api:
+    # backup_community_string: "{{ vault_nagios_ncpa_token_previous }}"
     community_string: mytoken
   passive:
+    ca_cert:
     delay_start: 0
     handlers: None
     logfile: var/log/ncpa_passive.log
@@ -52,8 +59,11 @@ ncpa_config_default:
     servers: localhost:9092
     topic: ncpa
   plugin directives:
+    .php: php $plugin_name $plugin_args
+    .pl: perl $plugin_name $plugin_args
     .py: python3 $plugin_name $plugin_args
     .sh: /bin/sh $plugin_name $plugin_args
     follow_symlinks: 0
     plugin_path: plugins/
     plugin_timeout: 59
+    # run_with_sudo: check_special,check_root_files

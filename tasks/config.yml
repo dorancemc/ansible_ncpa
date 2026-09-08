@@ -1,5 +1,23 @@
 ---
 
+- name: Find NCPA drop-in configuration files
+  become: true
+  ansible.builtin.find:
+    paths: "{{ ncpa_config_path }}/ncpa.cfg.d"
+    patterns: '*.cfg'
+  register: __ncpa_config_d
+
+- name: Remove NCPA drop-in configuration files
+  become: true
+  ansible.builtin.file:
+    path: "{{ __ncpa_config_d_file.path }}"
+    state: absent
+  loop: "{{ __ncpa_config_d.files }}"
+  loop_control:
+    loop_var: __ncpa_config_d_file
+    label: "{{ __ncpa_config_d_file.path }}"
+  notify: restart ncpa
+
 - name: Deploy NCPA configuration file
   become: true
   ansible.builtin.template:

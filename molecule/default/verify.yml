@@ -1,0 +1,78 @@
+---
+
+- name: Verify
+  hosts: all
+  vars:
+    ncpa_config_file: /usr/local/ncpa/etc/ncpa.cfg
+  tasks:
+    - name: Gather service facts
+      ansible.builtin.service_facts:
+
+    - name: Assert the NCPA service is running and enabled
+      ansible.builtin.assert:
+        that:
+          - ansible_facts['services']['ncpa.service']['state'] == 'running'
+          - ansible_facts['services']['ncpa.service']['status'] == 'enabled'
+        fail_msg: ncpa.service is not running and enabled
+
+    - name: Stat the NCPA configuration file
+      ansible.builtin.stat:
+        path: "{{ ncpa_config_file }}"
+      register: __ncpa_cfg_stat
+
+    - name: Assert the NCPA configuration file ownership and mode
+      ansible.builtin.assert:
+        that:
+          - __ncpa_cfg_stat.stat.exists
+          - __ncpa_cfg_stat.stat.mode == '0640'
+          - __ncpa_cfg_stat.stat.pw_name == 'root'
+          - __ncpa_cfg_stat.stat.gr_name == 'nagios'
+        fail_msg: "{{ ncpa_config_file }} is not root:nagios 0640"
+
+    - name: Read the NCPA configuration file
+      ansible.builtin.slurp:
+        src: "{{ ncpa_config_file }}"
+      register: __ncpa_cfg_content
+      no_log: true
+
+    - name: Assert the rendered configuration matches NCPA 3.5.0 options
+      ansible.builtin.assert:
+        that:
+          - "'gui_session_timeout = 3600' in __ncpa_cfg_rendered"
+          - "'ca_cert = ' in __ncpa_cfg_rendered"
+          - "'ssl_version = TLSv1_2' in __ncpa_cfg_rendered"
+          - "'.pl = perl $plugin_name $plugin_args' in __ncpa_cfg_rendered"
+          - "'community_string = molecule-test-token' in __ncpa_cfg_rendered"
+        fail_msg: The rendered ncpa.cfg is missing expected NCPA 3 options
+      vars:
+        __ncpa_cfg_rendered: "{{ __ncpa_cfg_content.content | b64decode }}"
+      no_log: true
+
+    - name: Find NCPA drop-in configuration files
+      ansible.builtin.find:
+        paths: /usr/local/ncpa/etc/ncpa.cfg.d
+        patterns: '*.cfg'
+      register: __ncpa_config_d
+
+    - name: Assert no drop-in configuration file overrides the role
+      ansible.builtin.assert:
+        that:
+          - __ncpa_config_d.files | length == 0
+        fail_msg: "ncpa.cfg.d still holds {{ __ncpa_config_d.files | map(attribute='path') | join(', ') }}"
+
+    - name: Query the NCPA API
+      ansible.builtin.uri:
+        url: https://localhost:5693/api/?token=molecule-test-token
+        validate_certs: false
+        timeout: 30
+      register: __ncpa_api_check
+      until: __ncpa_api_check.status == 200
+      retries: 5
+      delay: 5
+      no_log: true
+
+    - name: Assert the NCPA API answered
+      ansible.builtin.assert:
+        that:
+          - __ncpa_api_check.status == 200
+        fail_msg: The NCPA API did not answer on port 5693

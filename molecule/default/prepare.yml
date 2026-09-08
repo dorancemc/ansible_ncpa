@@ -11,14 +11,19 @@
       failed_when: false
       timeout: 180
 
-    - name: Report the systemd state and failed units
-      ansible.builtin.debug:
-        var: __ncpa_systemd_state.stdout_lines
+    - name: Collect sudo diagnostics
+      ansible.builtin.raw: |
+        id
+        ls -l /etc/shadow /etc/passwd /etc/sudoers
+        getent shadow root | cut -d: -f1
+        grep -E '^(passwd|shadow):' /etc/nsswitch.conf
+        rpm -qV sudo pam 2>/dev/null || dpkg -V sudo libpam-modules
+        sudo -n true; echo "sudo rc=$?"
+        tail -n 20 /var/log/secure 2>/dev/null || tail -n 20 /var/log/auth.log 2>/dev/null
+      register: __ncpa_sudo_diag
+      changed_when: false
+      failed_when: false
 
-    - name: Create the faillock run directory
-      ansible.builtin.file:
-        path: /run/faillock
-        state: directory
-        owner: root
-        group: root
-        mode: '0755'
+    - name: Report the prepare diagnostics
+      ansible.builtin.debug:
+        msg: "{{ __ncpa_systemd_state.stdout_lines | default([]) + __ncpa_sudo_diag.stdout_lines | default([]) }}"

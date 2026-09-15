@@ -1,0 +1,27 @@
+---
+
+- name: Prepare
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Wait for systemd to finish booting
+      ansible.builtin.raw: systemctl is-system-running --wait; systemctl list-units --failed --no-legend
+      register: __ncpa_systemd_state
+      changed_when: false
+      failed_when: false
+      timeout: 180
+
+    - name: Report the systemd state and failed units
+      ansible.builtin.debug:
+        var: __ncpa_systemd_state.stdout_lines
+
+    - name: Replace the sudo PAM stack for the container
+      ansible.builtin.copy:
+        dest: /etc/pam.d/sudo
+        content: |
+          auth sufficient pam_rootok.so
+          account sufficient pam_permit.so
+          session sufficient pam_permit.so
+        owner: root
+        group: root
+        mode: '0644'

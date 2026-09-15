@@ -1,0 +1,10 @@
+---
+
+- name: Converge
+  hosts: all
+  vars:
+    ncpa_config:
+      api:
+        community_string: molecule-test-token
+  roles:
+    - role: ncpa

@@ -2,6 +2,7 @@
 
 exclude_paths:
   - .ansible/
+  - molecule/default/roles/
   - tests/roles/
 
 skip_list:

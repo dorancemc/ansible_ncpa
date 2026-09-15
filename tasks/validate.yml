@@ -14,3 +14,27 @@
     fail_msg: Define ncpa_config.api.community_string with a vaulted token
   no_log: true
   diff: false
+
+- name: Assert the NCPA API backup token is usable
+  ansible.builtin.assert:
+    that:
+      - __ncpa_config.api.backup_community_string != 'mytoken2'
+      - __ncpa_config.api.backup_community_string != __ncpa_config.api.community_string
+    fail_msg: ncpa_config.api.backup_community_string must be a distinct vaulted token
+  when: __ncpa_config.api.backup_community_string | default('') | length > 0
+  no_log: true
+  diff: false
+
+- name: Assert the listener TLS versions are supported
+  ansible.builtin.assert:
+    that:
+      - __ncpa_config.listener.ssl_version in ['TLSv1_2', 'TLSv1_3']
+      - __ncpa_config.listener.ssl_max_version | default('') | length == 0 or __ncpa_config.listener.ssl_max_version in ['TLSv1_2', 'TLSv1_3']
+    fail_msg: NCPA 3 accepts only TLSv1_2 and TLSv1_3 in ssl_version and ssl_max_version
+
+- name: Assert custom TLS ciphers are pinned to TLSv1_2
+  ansible.builtin.assert:
+    that:
+      - __ncpa_config.listener.ssl_max_version | default('') == 'TLSv1_2'
+    fail_msg: ncpa_config.listener.ssl_ciphers is ignored unless ssl_max_version is TLSv1_2
+  when: __ncpa_config.listener.ssl_ciphers | default('') | length > 0

@@ -1,9 +1,11 @@
 ---
 
-- name: Install apt-transport-https package
+- name: Install APT repository management packages
   become: true
   ansible.builtin.apt:
-    name: apt-transport-https
+    name:
+      - apt-transport-https
+      - python3-debian
     state: present
     update_cache: true
     cache_valid_time: 3600
